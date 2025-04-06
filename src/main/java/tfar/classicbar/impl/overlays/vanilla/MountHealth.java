@@ -1,15 +1,18 @@
 package tfar.classicbar.impl.overlays.vanilla;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 import tfar.classicbar.impl.BarOverlayImpl;
 import tfar.classicbar.util.ColorUtils;
 import tfar.classicbar.util.HealthEffect;
 import tfar.classicbar.util.ModUtils;
 
 public class MountHealth extends BarOverlayImpl {
+  private static final ResourceLocation BACKGROUND = ResourceLocation.withDefaultNamespace("hud/heart/vehicle_container");
+  private static final ResourceLocation HEART = ResourceLocation.withDefaultNamespace("hud/heart/vehicle_full");
 
   private long healthUpdateCounter = 0;
 
@@ -25,9 +28,9 @@ public class MountHealth extends BarOverlayImpl {
   }
 
   @Override
-  public void renderBar(ForgeGui gui, GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
+  public void renderBar(GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
     //Push to avoid lasting changes
-    int updateCounter = gui.getGuiTicks();
+    int updateCounter = Minecraft.getInstance().gui.getGuiTicks();
 
     LivingEntity mount = (LivingEntity) player.getVehicle();
     if (!mount.isAlive()) return;
@@ -79,8 +82,8 @@ public class MountHealth extends BarOverlayImpl {
     int xStart = width / 2 + getIconOffset();
     int yStart = height - vOffset;
     //heart background
-    ModUtils.drawTexturedModalRect(graphics,xStart, yStart, 16, 0, 9, 9);
+    ModUtils.drawSprite(BACKGROUND, graphics,xStart, yStart, 9, 9);
     //heart
-    ModUtils.drawTexturedModalRect(graphics,xStart, yStart, 88, 9, 9, 9);
+    ModUtils.drawSprite(HEART, graphics,xStart, yStart, 9, 9);
   }
 }

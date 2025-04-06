@@ -1,6 +1,6 @@
 package tfar.classicbar.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import tfar.classicbar.util.Color;
 import tfar.classicbar.util.ColorUtils;
 
@@ -65,7 +65,7 @@ public class ConfigCache {
         frozenHealth = ColorUtils.hex2Color(ClassicBarsConfig.frozenHealthColor.get());
     }
 
-    private static void cacheList(ForgeConfigSpec.ConfigValue<List<? extends String>> config, List<Color> cache) {
+    private static void cacheList(ModConfigSpec.ConfigValue<List<? extends String>> config, List<Color> cache) {
         for (String s : config.get()) {
             cache.add(ColorUtils.hex2Color(s));
         }

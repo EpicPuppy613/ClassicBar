@@ -1,54 +1,48 @@
 package tfar.classicbar.network;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
-import tfar.classicbar.ClassicBar;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import org.jetbrains.annotations.NotNull;
 
-import static net.minecraftforge.common.MinecraftForge.EVENT_BUS;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public final class Message {
 
-  private static final String NETWORK_VERSION = "1.0";
-
-  private static SimpleChannel channel;
-
-  private static int id;
-
   public static boolean presentOnServer;
 
-  public static SimpleChannel channel() {
-    return channel;
+  @SubscribeEvent
+  public static void registerMessages(final RegisterPayloadHandlersEvent event) {
+    final PayloadRegistrar registrar = event.registrar("1");
+
+    registerPayload(registrar, MessageExhaustionSync.TYPE, MessageExhaustionSync::encode, MessageExhaustionSync::new, MessageExhaustionSync::handle);
+    registerPayload(registrar, MessageHydrationSync.TYPE, MessageHydrationSync::encode, MessageHydrationSync::new, MessageHydrationSync::handle);
+    registerPayload(registrar, MessageSaturationSync.TYPE, MessageSaturationSync::encode, MessageSaturationSync::new, MessageSaturationSync::handle);
+    registerPayload(registrar, MessageThirstExhaustionSync.TYPE, MessageThirstExhaustionSync::encode, MessageThirstExhaustionSync::new, MessageThirstExhaustionSync::handle);
+
+    NeoForge.EVENT_BUS.register(SyncHandler.instance());
   }
 
-  public static void registerMessages(String channelName) {
-    if (channel != null) return;
-    channel = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(ClassicBar.MODID, channelName),
-            () -> NETWORK_VERSION,
-            serverVersion -> NetworkRegistry.ABSENT.version().equals(serverVersion) || NETWORK_VERSION.equals(serverVersion),
-            clientVersion -> NetworkRegistry.ABSENT.version().equals(clientVersion) || NETWORK_VERSION.equals(clientVersion)
-    );
-    channel.registerMessage(id++, MessageExhaustionSync.class,
-            MessageExhaustionSync::encode,
-            MessageExhaustionSync::new,
-            MessageExhaustionSync::handle);
+  private static <T extends CustomPacketPayload> void registerPayload(PayloadRegistrar registrar, CustomPacketPayload.Type<T> data, BiConsumer<T, ? super RegistryFriendlyByteBuf> encode, Function<? super RegistryFriendlyByteBuf, T> decode, BiConsumer<T, IPayloadContext> handle) {
+    StreamCodec<? super RegistryFriendlyByteBuf, T> codec = new StreamCodec<>() {
+      @Override
+      public @NotNull T decode(@NotNull RegistryFriendlyByteBuf buffer) {
+        return decode.apply(buffer);
+      }
 
-    channel.registerMessage(id++, MessageSaturationSync.class,
-            MessageSaturationSync::encode,
-            MessageSaturationSync::new,
-            MessageSaturationSync::handle);
-
-    channel.registerMessage(id++, MessageThirstExhaustionSync.class,
-            MessageThirstExhaustionSync::encode,
-            MessageThirstExhaustionSync::new,
-            MessageThirstExhaustionSync::handle);
-
-    channel.registerMessage(id++, MessageHydrationSync.class,
-            MessageHydrationSync::encode,
-            MessageHydrationSync::new,
-            MessageHydrationSync::handle);
-    EVENT_BUS.register(SyncHandler.instance());
+      @Override
+      public void encode(@NotNull RegistryFriendlyByteBuf buffer, @NotNull T value) {
+        encode.accept(value, buffer);
+      }
+    };
+    registrar.playBidirectional(data, codec, handle::accept);
   }
 
   private Message() {}

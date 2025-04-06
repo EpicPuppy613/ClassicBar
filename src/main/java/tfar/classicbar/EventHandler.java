@@ -1,18 +1,20 @@
 package tfar.classicbar;
 
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
-import net.minecraftforge.client.gui.overlay.NamedGuiOverlay;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.InterModComms;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
+import net.neoforged.fml.InterModComms;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.common.NeoForge;
+import org.jetbrains.annotations.NotNull;
 import tfar.classicbar.api.BarOverlay;
 import tfar.classicbar.compat.ModCompat;
 import tfar.classicbar.config.ClassicBarsConfig;
@@ -25,7 +27,7 @@ import tfar.classicbar.util.ModUtils;
 
 import java.util.*;
 
-public class EventHandler implements IGuiOverlay {
+public class EventHandler implements LayeredDraw.Layer {
 
   private static final List<BarOverlay> all = new ArrayList<>();
   public static final Map<String, BarOverlay> registry = new HashMap<>();
@@ -44,8 +46,8 @@ public class EventHandler implements IGuiOverlay {
     });
   }
 
-  public void render(ForgeGui gui, GuiGraphics matrices, float partialTick, int screenWidth, int screenHeight) {
-
+  @Override
+  public void render(@NotNull GuiGraphics gui, @NotNull DeltaTracker tracker) {
     Entity entity = ModUtils.mc.getCameraEntity();
     if (!(entity instanceof Player player)) return;
     if (player.getAbilities().instabuild || player.isSpectator()) return;
@@ -54,7 +56,7 @@ public class EventHandler implements IGuiOverlay {
     for (BarOverlay overlay : all) {
       boolean rightHand = overlay.rightHandSide();
       try {
-        overlay.render(gui, matrices, player, screenWidth, screenHeight, getOffset(gui, rightHand));
+        overlay.render(gui, player, gui.guiWidth(), gui.guiHeight(), getOffset(Minecraft.getInstance().gui, rightHand));
       } catch (Error e) {
         ClassicBar.logger.error("Removing broken overlay "+overlay.name());
         e.printStackTrace();
@@ -67,12 +69,12 @@ public class EventHandler implements IGuiOverlay {
     ModUtils.mc.getProfiler().pop();
   }
 
-  public static void increment(ForgeGui gui,boolean side ,int amount){
+  public static void increment(Gui gui,boolean side ,int amount){
     if (side)gui.rightHeight+=amount;
     else gui.leftHeight+=amount;
   }
 
-  public static int getOffset(ForgeGui gui,boolean right) {
+  public static int getOffset(Gui gui,boolean right) {
     return right ? gui.rightHeight : gui.leftHeight;
   }
 
@@ -88,9 +90,9 @@ public class EventHandler implements IGuiOverlay {
     InterModComms.sendTo("vampirism", "disable-blood-bar", () -> true);
   }
 
-  public static void setupOverlays(RegisterGuiOverlaysEvent e) {
-    MinecraftForge.EVENT_BUS.addListener(EventHandler::disableOtherOverlays);
-    e.registerBelow(VanillaGuiOverlay.ITEM_NAME.id(),ClassicBar.MODID,new EventHandler());
+  public static void setupOverlays(RegisterGuiLayersEvent e) {
+    NeoForge.EVENT_BUS.addListener(EventHandler::disableOtherOverlays);
+    e.registerBelow(VanillaGuiLayers.SELECTED_ITEM_NAME,ResourceLocation.fromNamespaceAndPath(ClassicBar.MODID, "layer"),new EventHandler());
 
     //Register renderers for events
     ClassicBar.logger.info("Registering Vanilla Overlays");
@@ -114,14 +116,16 @@ public class EventHandler implements IGuiOverlay {
 
     //MinecraftForge.EVENT_BUS.register(new BetterDivingRenderer());
     //  if (ModList.get().isLoaded("botania")) MinecraftForge.EVENT_BUS.register(new TiaraBarRenderer());
+    // Regenerate configs
+    ClassicBarsConfig.onConfigChainged();
   }
 
-  private static final List<ResourceLocation> vanilla_overlays = List.of(VanillaGuiOverlay.AIR_LEVEL.id(),VanillaGuiOverlay.ARMOR_LEVEL.id(),
-          VanillaGuiOverlay.PLAYER_HEALTH.id(),VanillaGuiOverlay.MOUNT_HEALTH.id(),VanillaGuiOverlay.FOOD_LEVEL.id());
-  public static void disableOtherOverlays(RenderGuiOverlayEvent.Pre e) {
-    NamedGuiOverlay overlay = e.getOverlay();
-    if (vanilla_overlays.contains(overlay.id())) e.setCanceled(true);
-    else if (overlay.id().getNamespace().equals("parcool") && StaminaB.checkConfigs()) e.setCanceled(true);
-    else if (ModCompat.toughasnails.loaded && Thirst.isEnabled() && Thirst.OVERLAY_ID.equals(overlay.id())) e.setCanceled(true);
+  private static final List<ResourceLocation> vanilla_overlays = List.of(VanillaGuiLayers.AIR_LEVEL,VanillaGuiLayers.ARMOR_LEVEL,
+          VanillaGuiLayers.PLAYER_HEALTH,VanillaGuiLayers.VEHICLE_HEALTH,VanillaGuiLayers.FOOD_LEVEL);
+  public static void disableOtherOverlays(RenderGuiLayerEvent.Pre e) {
+    ResourceLocation overlay = e.getName();
+    if (vanilla_overlays.contains(overlay)) e.setCanceled(true);
+    else if (overlay.getNamespace().equals("parcool") && StaminaB.checkConfigs()) e.setCanceled(true);
+    else if (ModCompat.toughasnails.loaded && Thirst.isEnabled() && Thirst.OVERLAY_ID.equals(overlay)) e.setCanceled(true);
   }
 }

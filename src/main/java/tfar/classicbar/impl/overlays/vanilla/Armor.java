@@ -1,11 +1,12 @@
 package tfar.classicbar.impl.overlays.vanilla;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 import tfar.classicbar.config.ClassicBarsConfig;
 import tfar.classicbar.config.ConfigCache;
 import tfar.classicbar.impl.BarOverlayImpl;
@@ -13,6 +14,7 @@ import tfar.classicbar.util.Color;
 import tfar.classicbar.util.ModUtils;
 
 public class Armor extends BarOverlayImpl {
+    private static final ResourceLocation ARMOR = ResourceLocation.withDefaultNamespace("hud/armor_full");
 
     private static final EquipmentSlot[] armorList = new EquipmentSlot[]{EquipmentSlot.HEAD,
             EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
@@ -27,7 +29,7 @@ public class Armor extends BarOverlayImpl {
     }
 
     @Override
-    public void renderBar(ForgeGui gui, GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
+    public void renderBar(GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
         double armor = calculateArmorValue(player);
         double barWidth = getBarWidth(player);
 
@@ -79,6 +81,7 @@ public class Armor extends BarOverlayImpl {
                 renderPartialBar(graphics, xStart + 2, yStart + 2, ModUtils.getWidth(armor - index * 20, 20));
             }
         }
+        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 
     @Override
@@ -140,7 +143,7 @@ public class Armor extends BarOverlayImpl {
         int xStart = width / 2 + getIconOffset();
         int yStart = height - vOffset;
         //Draw armor icon
-        ModUtils.drawTexturedModalRect(graphics, xStart, yStart, 43, 9, 9, 9);
+        ModUtils.drawSprite(ARMOR, graphics, xStart, yStart, 9, 9);
     }
 
     private static int calculateArmorValue(Player player) {

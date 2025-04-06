@@ -6,7 +6,6 @@ import de.teamlapen.vampirism.api.entity.player.vampire.IBloodStats;
 import de.teamlapen.vampirism.api.entity.player.vampire.IVampirePlayer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 import tfar.classicbar.impl.BarOverlayImpl;
 import tfar.classicbar.util.Color;
 
@@ -27,7 +26,7 @@ public class Blood extends BarOverlayImpl {
     }
 
     @Override
-    public void renderBar(ForgeGui gui, GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
+    public void renderBar(GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
         VReference.VAMPIRE_FACTION.getPlayerCapability(player).map(IVampirePlayer::getBloodStats).ifPresent(stats -> {
             double barWidth = getBarWidth(player);
             int xStart = screenWidth / 2 + getHOffset();

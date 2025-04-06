@@ -1,17 +1,16 @@
 package tfar.classicbar.config;
 
-import com.electronwill.nightconfig.core.ConfigSpec;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.io.IOUtils;
 import tfar.classicbar.ClassicBar;
 import tfar.classicbar.EventHandler;
@@ -29,51 +28,51 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = ClassicBar.MODID, bus = Mod.EventBusSubscriber.Bus.MOD,value = Dist.CLIENT)
+@EventBusSubscriber(modid = ClassicBar.MODID, bus = EventBusSubscriber.Bus.MOD,value = Dist.CLIENT)
 public class ClassicBarsConfig {
 
-  static ForgeConfigSpec.BooleanValue displayIcons;
-  public static ForgeConfigSpec.BooleanValue displayToughnessBar;
-  public static ForgeConfigSpec.BooleanValue fullAbsorptionBar;
-  public static ForgeConfigSpec.BooleanValue fullArmorBar;
-  public static ForgeConfigSpec.BooleanValue fullToughnessBar;
-  public static ForgeConfigSpec.BooleanValue lowArmorWarning;
-  public static ForgeConfigSpec.BooleanValue showSaturationBar;
-  public static ForgeConfigSpec.BooleanValue showHydrationBar;
-  public static ForgeConfigSpec.BooleanValue showHeldFoodOverlay;
-  public static ForgeConfigSpec.BooleanValue showHeldDrinkOverlay;
-  public static ForgeConfigSpec.BooleanValue showExhaustionOverlay;
-  public static ForgeConfigSpec.BooleanValue showThirstExhaustionOverlay;
+  static ModConfigSpec.BooleanValue displayIcons;
+  public static ModConfigSpec.BooleanValue displayToughnessBar;
+  public static ModConfigSpec.BooleanValue fullAbsorptionBar;
+  public static ModConfigSpec.BooleanValue fullArmorBar;
+  public static ModConfigSpec.BooleanValue fullToughnessBar;
+  public static ModConfigSpec.BooleanValue lowArmorWarning;
+  public static ModConfigSpec.BooleanValue showSaturationBar;
+  public static ModConfigSpec.BooleanValue showHydrationBar;
+  public static ModConfigSpec.BooleanValue showHeldFoodOverlay;
+  public static ModConfigSpec.BooleanValue showHeldDrinkOverlay;
+  public static ModConfigSpec.BooleanValue showExhaustionOverlay;
+  public static ModConfigSpec.BooleanValue showThirstExhaustionOverlay;
 
-  public static ForgeConfigSpec.DoubleValue transitionSpeed;
-  static ForgeConfigSpec.ConfigValue<String> hungerBarColor;
-  static ForgeConfigSpec.ConfigValue<String> hungerBarDebuffColor;
-  static ForgeConfigSpec.ConfigValue<String> saturationBarColor;
-  static ForgeConfigSpec.ConfigValue<String> saturationBarDebuffColor;
-  static ForgeConfigSpec.ConfigValue<String> thirstBarColor;
-  static ForgeConfigSpec.ConfigValue<String> thirstBarDebuffColor;
-  static ForgeConfigSpec.ConfigValue<String> hydrationBarColor;
-  static ForgeConfigSpec.ConfigValue<String> hydrationBarDebuffColor;
-  static ForgeConfigSpec.ConfigValue<String> airBarColor;
-  static ForgeConfigSpec.ConfigValue<List<? extends String>> armorColors;
-  static ForgeConfigSpec.ConfigValue<List<? extends String>> armorToughnessColors;
-  static ForgeConfigSpec.ConfigValue<List<? extends String>> absorptionColors;
-  static ForgeConfigSpec.ConfigValue<List<? extends String>> absorptionPoisonColors;
-  static ForgeConfigSpec.ConfigValue<List<? extends String>> absorptionWitherColors;
-  public static ForgeConfigSpec.ConfigValue<List<? extends Double>> normalFractions;
-  static ForgeConfigSpec.ConfigValue<List<? extends String>> normalColors;
-  public static ForgeConfigSpec.ConfigValue<List<? extends Double>> poisonedFractions;
-  static ForgeConfigSpec.ConfigValue<List<? extends String>> poisonedColors;
-  public static ForgeConfigSpec.ConfigValue<List<? extends Double>> witheredFractions;
-  static ForgeConfigSpec.ConfigValue<List<? extends String>> witheredColors;
-  public static ForgeConfigSpec.ConfigValue<String> frozenHealthColor;
-  public static ForgeConfigSpec.ConfigValue<String> lavaBarColor;
-  public static ForgeConfigSpec.ConfigValue<String> flightBarColor;
+  public static ModConfigSpec.DoubleValue transitionSpeed;
+  static ModConfigSpec.ConfigValue<String> hungerBarColor;
+  static ModConfigSpec.ConfigValue<String> hungerBarDebuffColor;
+  static ModConfigSpec.ConfigValue<String> saturationBarColor;
+  static ModConfigSpec.ConfigValue<String> saturationBarDebuffColor;
+  static ModConfigSpec.ConfigValue<String> thirstBarColor;
+  static ModConfigSpec.ConfigValue<String> thirstBarDebuffColor;
+  static ModConfigSpec.ConfigValue<String> hydrationBarColor;
+  static ModConfigSpec.ConfigValue<String> hydrationBarDebuffColor;
+  static ModConfigSpec.ConfigValue<String> airBarColor;
+  static ModConfigSpec.ConfigValue<List<? extends String>> armorColors;
+  static ModConfigSpec.ConfigValue<List<? extends String>> armorToughnessColors;
+  static ModConfigSpec.ConfigValue<List<? extends String>> absorptionColors;
+  static ModConfigSpec.ConfigValue<List<? extends String>> absorptionPoisonColors;
+  static ModConfigSpec.ConfigValue<List<? extends String>> absorptionWitherColors;
+  public static ModConfigSpec.ConfigValue<List<? extends Double>> normalFractions;
+  static ModConfigSpec.ConfigValue<List<? extends String>> normalColors;
+  public static ModConfigSpec.ConfigValue<List<? extends Double>> poisonedFractions;
+  static ModConfigSpec.ConfigValue<List<? extends String>> poisonedColors;
+  public static ModConfigSpec.ConfigValue<List<? extends Double>> witheredFractions;
+  static ModConfigSpec.ConfigValue<List<? extends String>> witheredColors;
+  public static ModConfigSpec.ConfigValue<String> frozenHealthColor;
+  public static ModConfigSpec.ConfigValue<String> lavaBarColor;
+  public static ModConfigSpec.ConfigValue<String> flightBarColor;
 
-  public static ForgeConfigSpec.ConfigValue<List<? extends String>> leftorder;
-  public static ForgeConfigSpec.ConfigValue<List<? extends String>> rightorder;
+  public static ModConfigSpec.ConfigValue<List<? extends String>> leftorder;
+  public static ModConfigSpec.ConfigValue<List<? extends String>> rightorder;
 
-  public ClassicBarsConfig(ForgeConfigSpec.Builder builder) {
+  public ClassicBarsConfig(ModConfigSpec.Builder builder) {
     builder.push("general");
     displayIcons = builder.define("display_icons", true);
 
@@ -122,10 +121,14 @@ public class ClassicBarsConfig {
   }
 
   @SubscribeEvent
-  public static void onConfigChanged(ModConfigEvent event) {
-      EventHandler.cacheConfigs();
-      readBarSettings();
-      ClassicBar.logger.info("Syncing Classic Bar Configs");
+  public static void onConfigChanged(ModConfigEvent.Reloading event) {
+    onConfigChainged();
+  }
+
+  public static void onConfigChainged() {
+    EventHandler.cacheConfigs();
+    readBarSettings();
+    ClassicBar.logger.info("Syncing Classic Bar Configs");
   }
 
   static File settingsPath = new File("config/" + ClassicBar.MODID + "/");
@@ -184,6 +187,7 @@ public class ClassicBarsConfig {
     makeDefaultBarSettings();
     for (BarOverlay barOverlay : EventHandler.registry.values()) {
       File file = new File("config/" + ClassicBar.MODID + "/"+ barOverlay.name()+".json");
+      if (file.exists()) continue;
       JsonWriter writer = null;
       try {
         writer = gson.newJsonWriter(new FileWriter(file));

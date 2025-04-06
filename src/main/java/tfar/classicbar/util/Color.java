@@ -1,6 +1,7 @@
 package tfar.classicbar.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 
 public record Color(int r,int g,int b) {
@@ -35,6 +36,16 @@ public record Color(int r,int g,int b) {
         float b = this.b / 255f;
         RenderSystem.setShaderColor(r, g, b, a);
     }
+    public void color2Gl(GuiGraphics g) {
+        color2Gla(g, 1);
+    }
+    public void color2Gla(GuiGraphics gg, float a) {
+        float r = this.r / 255f;
+        float g = this.g / 255f;
+        float b = this.b / 255f;
+        gg.setColor(r, g, b, a);
+    }
+
     public static void reset() {
         RenderSystem.setShaderColor(1,1,1,1);
     }

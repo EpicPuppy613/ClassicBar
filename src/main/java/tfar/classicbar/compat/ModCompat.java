@@ -1,6 +1,6 @@
 package tfar.classicbar.compat;
 
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 public enum ModCompat {
     vampirism, feathers,parcool,toughasnails;

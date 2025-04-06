@@ -3,7 +3,6 @@ package tfar.classicbar.impl.overlays.vanilla;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 import tfar.classicbar.config.ClassicBarsConfig;
 import tfar.classicbar.config.ConfigCache;
 import tfar.classicbar.impl.BarOverlayImpl;
@@ -22,7 +21,7 @@ public class ArmorToughness extends BarOverlayImpl {
     }
 
     @Override
-    public void renderBar(ForgeGui gui, GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
+    public void renderBar(GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
         //armor toughness stuff
         double armorToughness = player.getAttribute(Attributes.ARMOR_TOUGHNESS).getValue();
         double barWidth = getBarWidth(player);
@@ -62,6 +61,7 @@ public class ArmorToughness extends BarOverlayImpl {
                 renderFullBar(graphics, xStart + 2, yStart + 2);
             }
         }
+        Color.reset();
     }
 
     public double getBarWidth(Player player) {

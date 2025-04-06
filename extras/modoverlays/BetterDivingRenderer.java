@@ -8,11 +8,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.client.ForgeIngameGui;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Loader;
+import net.neoforged.client.ForgeIngameGui;
+import net.neoforged.client.event.RenderGameOverlayEvent;
+import net.neoforged.eventbus.api.EventPriority;
+import net.neoforged.eventbus.api.SubscribeEvent;
+import net.neoforged.fml.common.Loader;
 import tfar.classicbar.impl.BarOverlayImpl;
 
 import static tfar.classicbar.util.ColorUtils.hex2Color;

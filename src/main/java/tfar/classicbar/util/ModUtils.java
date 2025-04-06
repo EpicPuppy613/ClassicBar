@@ -3,19 +3,24 @@ package tfar.classicbar.util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import tfar.classicbar.impl.BarOverlayImpl;
 
 public class ModUtils {
   public static final Minecraft mc = Minecraft.getInstance();
-    public static final ResourceLocation VAMPIRISM_ICONS = new ResourceLocation("vampirism:textures/gui/icons.png");
-  public static final ResourceLocation THIRST_ICON = new ResourceLocation("toughasnails", "textures/gui/icons.png");
+    public static final ResourceLocation VAMPIRISM_ICONS = ResourceLocation.parse("vampirism:textures/gui/icons.png");
+  public static final ResourceLocation THIRST_ICON = ResourceLocation.fromNamespaceAndPath("toughasnails", "textures/gui/icons.png");
   private static final Font fontRenderer = mc.font;
-  public static final ResourceLocation ICONS = new ResourceLocation("parcool:textures/gui/stamina_bar.png");
+  public static final ResourceLocation ICONS = ResourceLocation.parse("parcool:textures/gui/stamina_bar.png");
   public static ResourceLocation CURRENT_TEXTURE = BarOverlayImpl.GUI_ICONS_LOCATION;
 
   public static void drawTexturedModalRect(GuiGraphics stack, double x, int y, int textureX, int textureY, double width, int height) {
     stack.blit(CURRENT_TEXTURE, (int) x, y, textureX, textureY, (int) width, height);
+  }
+
+  public static void drawSprite(ResourceLocation sprite, GuiGraphics stack, int x, int y, int width, int height) {
+    stack.blitSprite(sprite, x, y, width, height);
   }
 
   public static double getWidth(double d1, double d2) {

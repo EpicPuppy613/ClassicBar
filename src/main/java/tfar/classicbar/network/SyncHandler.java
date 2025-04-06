@@ -2,13 +2,13 @@ package tfar.classicbar.network;
 
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.network.NetworkDirection;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import tfar.classicbar.compat.ModCompat;
 import toughasnails.api.thirst.IThirst;
 import toughasnails.api.thirst.ThirstHelper;
@@ -44,10 +44,10 @@ public final class SyncHandler {
   private final Map<UUID, Float> lastThirstExhaustionLevels = new HashMap<>();
 
   @SubscribeEvent
-  public void onLivingUpdateEvent(TickEvent.PlayerTickEvent event) {
-    if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer player)) {
-      return;
-    }
+  @OnlyIn(Dist.DEDICATED_SERVER)
+  public void onLivingUpdateEvent(PlayerTickEvent.Pre event) {
+
+    ServerPlayer player = (ServerPlayer) event.getEntity();
 
     syncVanillaData(player);
 
@@ -65,14 +65,14 @@ public final class SyncHandler {
     float saturationLevel = player.getFoodData().getSaturationLevel();
     if (lastSaturationLevel == null || lastSaturationLevel != saturationLevel) {
       MessageSaturationSync msg = new MessageSaturationSync(saturationLevel);
-      Message.channel().sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+      PacketDistributor.sendToPlayer(player, msg);
       lastSaturationLevels.put(uuid, saturationLevel);
     }
 
     float exhaustionLevel = player.getFoodData().getExhaustionLevel();
     if (lastExhaustionLevel == null || Math.abs(lastExhaustionLevel - exhaustionLevel) >= 0.01f) {
       MessageExhaustionSync msg = new MessageExhaustionSync(exhaustionLevel);
-      Message.channel().sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+      PacketDistributor.sendToPlayer(player, msg);
       lastExhaustionLevels.put(uuid, exhaustionLevel);
     }
   }
@@ -92,14 +92,14 @@ public final class SyncHandler {
     float hydrationLevel = thirstData.getHydration();
     if (lastHydrationLevel == null || lastHydrationLevel != hydrationLevel) {
       MessageHydrationSync msg = new MessageHydrationSync(hydrationLevel);
-      Message.channel().sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+      PacketDistributor.sendToPlayer(player, msg);
       lastHydrationLevels.put(uuid, hydrationLevel);
     }
 
     float exhaustionLevel = thirstData.getExhaustion();
     if (lastExhaustionLevel == null || Math.abs(lastExhaustionLevel - exhaustionLevel) >= 0.01f) {
       MessageThirstExhaustionSync msg = new MessageThirstExhaustionSync(exhaustionLevel);
-      Message.channel().sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+      PacketDistributor.sendToPlayer(player, msg);
       lastThirstExhaustionLevels.put(uuid, exhaustionLevel);
     }
   }
@@ -108,7 +108,6 @@ public final class SyncHandler {
   @SubscribeEvent
   public void onClientPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
     Connection conn = event.getConnection();
-    Message.presentOnServer = Message.channel().isRemotePresent(conn);
   }
 
   @SubscribeEvent

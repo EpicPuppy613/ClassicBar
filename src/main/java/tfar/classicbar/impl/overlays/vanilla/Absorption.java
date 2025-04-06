@@ -1,8 +1,8 @@
 package tfar.classicbar.impl.overlays.vanilla;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 import tfar.classicbar.config.ClassicBarsConfig;
 import tfar.classicbar.config.ConfigCache;
 import tfar.classicbar.impl.BarOverlayImpl;
@@ -11,6 +11,8 @@ import tfar.classicbar.util.HealthEffect;
 import tfar.classicbar.util.ModUtils;
 
 public class Absorption extends BarOverlayImpl {
+    private static ResourceLocation BACKGROUND = ResourceLocation.withDefaultNamespace("hud/heart/container");
+    private static ResourceLocation HEART = ResourceLocation.withDefaultNamespace("hud/heart/absorbing_full");
 
     public Absorption() {
         super("absorption");
@@ -22,7 +24,7 @@ public class Absorption extends BarOverlayImpl {
     }
 
     @Override
-    public void renderBar(ForgeGui gui, GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
+    public void renderBar(GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
 
         double absorb = player.getAbsorptionAmount();
         double barWidth = getBarWidth(player);
@@ -59,6 +61,7 @@ public class Absorption extends BarOverlayImpl {
                 renderPartialBar(graphics, xStart + 2, yStart + 2, ModUtils.getWidth(absorb % maxHealth, maxHealth));
             }
         }
+        Color.reset();
     }
 
     public double getBarWidth(Player player) {
@@ -109,7 +112,7 @@ public class Absorption extends BarOverlayImpl {
 
         int i5 = (player.level().getLevelData().isHardcore()) ? 5 : 0;
         //draw absorption icon
-        ModUtils.drawTexturedModalRect(graphics, xStart, yStart, 16, 9 * i5, 9, 9);
-        ModUtils.drawTexturedModalRect(graphics, xStart, yStart, 160, 0, 9, 9);
+        ModUtils.drawSprite(BACKGROUND, graphics, xStart, yStart, 9, 9);
+        ModUtils.drawSprite(HEART, graphics, xStart, yStart, 9, 9);
     }
 }

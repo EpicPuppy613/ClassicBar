@@ -1,14 +1,16 @@
 package tfar.classicbar.network;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import tfar.classicbar.ClassicBar;
 import tfar.classicbar.compat.ModCompat;
 import toughasnails.api.thirst.ThirstHelper;
 
-import java.util.function.Supplier;
-
-public class MessageThirstExhaustionSync {
+public class MessageThirstExhaustionSync implements CustomPacketPayload {
+    public static final Type<MessageThirstExhaustionSync> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(ClassicBar.MODID, "thirst"));
 
     private final float exhaustionLevel;
 
@@ -24,14 +26,17 @@ public class MessageThirstExhaustionSync {
         buf.writeFloat(exhaustionLevel);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> ctx) {
+    public void handle(IPayloadContext ctx) {
         if (ModCompat.toughasnails.loaded) {
-            ctx.get().enqueueWork(() -> {
-                Player player = NetworkHelper.getSidedPlayer(ctx.get());
+            ctx.enqueueWork(() -> {
+                Player player = ctx.player();
                 ThirstHelper.getThirst(player).setExhaustion(exhaustionLevel);
             });
         }
-        ctx.get().setPacketHandled(true);
     }
 
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

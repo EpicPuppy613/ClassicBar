@@ -1,11 +1,13 @@
 package tfar.classicbar.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import tfar.classicbar.ClassicBar;
 
-import java.util.function.Supplier;
-
-public class MessageSaturationSync {
+public class MessageSaturationSync implements CustomPacketPayload {
+    public static final Type<MessageSaturationSync> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(ClassicBar.MODID, "saturation"));
 
     private final float saturationLevel;
 
@@ -24,9 +26,12 @@ public class MessageSaturationSync {
         buf.writeFloat(saturationLevel);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> NetworkHelper.getSidedPlayer(ctx.get()).getFoodData().setSaturation(saturationLevel));
-        ctx.get().setPacketHandled(true);
+    public void handle(IPayloadContext ctx) {
+        ctx.enqueueWork(() -> ctx.player().getFoodData().setSaturation(saturationLevel));
     }
 
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

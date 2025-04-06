@@ -2,9 +2,10 @@ package tfar.classicbar.impl.overlays.vanilla;
 
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 import tfar.classicbar.impl.BarOverlayImpl;
 import tfar.classicbar.util.Color;
 import tfar.classicbar.util.ColorUtils;
@@ -12,6 +13,15 @@ import tfar.classicbar.util.HealthEffect;
 import tfar.classicbar.util.ModUtils;
 
 public class Health extends BarOverlayImpl {
+  private static final ResourceLocation BACKGROUND = ResourceLocation.withDefaultNamespace("hud/heart/container");
+  private static final ResourceLocation HEART = ResourceLocation.withDefaultNamespace("hud/heart/full");
+  private static final ResourceLocation HEART_POISON = ResourceLocation.withDefaultNamespace("hud/heart/poisoned_full");
+  private static final ResourceLocation HEART_WITHER = ResourceLocation.withDefaultNamespace("hud/heart/withered_full");
+  private static final ResourceLocation HEART_FROZEN = ResourceLocation.withDefaultNamespace("hud/heart/frozen_full");
+  private static final ResourceLocation HARD_HEART = ResourceLocation.withDefaultNamespace("hud/heart/hardcore_full");
+  private static final ResourceLocation HARD_HEART_POISON = ResourceLocation.withDefaultNamespace("hud/heart/poisoned_hardcore_full");
+  private static final ResourceLocation HARD_HEART_WITHER = ResourceLocation.withDefaultNamespace("hud/heart/withered_hardcore_full");
+  private static final ResourceLocation HARD_HEART_FROZEN = ResourceLocation.withDefaultNamespace("hud/heart/frozen_hardcore_full");
 
   private double playerHealth = 0;
   private long healthUpdateCounter = 0;
@@ -27,8 +37,8 @@ public class Health extends BarOverlayImpl {
   }
 
   @Override
-  public void renderBar(ForgeGui gui, GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
-    int updateCounter = gui.getGuiTicks();
+  public void renderBar(GuiGraphics graphics, Player player, int screenWidth, int screenHeight, int vOffset) {
+    int updateCounter = Minecraft.getInstance().gui.getGuiTicks();
 
     double health = player.getHealth();
     double barWidth = getBarWidth(player);
@@ -119,11 +129,28 @@ public class Health extends BarOverlayImpl {
     int xStart = width / 2 + getIconOffset();
     int yStart = height - vOffset;
     int i5 = (player.level().getLevelData().isHardcore()) ? 5 : 0;
+    boolean hard = (player.level().getLevelData().isHardcore());
     //Draw health icon
     //heart background
     Color.reset();
-    ModUtils.drawTexturedModalRect(graphics,xStart, yStart, 16, 9 * i5, 9, 9);
+    ModUtils.drawSprite(BACKGROUND, graphics, xStart, yStart, 9, 9);
     //heart
-    ModUtils.drawTexturedModalRect(graphics,xStart, yStart, 36 + effect.i, 9 * i5, 9, 9);
+    ResourceLocation texture;
+    if (hard) {
+      texture = switch (effect) {
+        case NONE -> HARD_HEART;
+        case POISON -> HARD_HEART_POISON;
+        case WITHER -> HARD_HEART_WITHER;
+        case FROZEN -> HARD_HEART_FROZEN;
+      };
+    } else {
+      texture = switch (effect) {
+        case NONE -> HEART;
+        case POISON -> HEART_POISON;
+        case WITHER -> HEART_WITHER;
+        case FROZEN -> HEART_FROZEN;
+      };
+    }
+    ModUtils.drawSprite(texture, graphics, xStart, yStart, 9, 9);
   }
 }
